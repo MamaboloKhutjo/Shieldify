@@ -22,8 +22,7 @@ namespace Shieldify
                 /\  ___\   /\ \_\ \   /\ \   /\  ___\   /\ \       /\  __-.  /\ \   /\  ___\ /\ \_\ \   
                 \ \___  \  \ \  __ \  \ \ \  \ \  __\   \ \ \____  \ \ \/\ \ \ \ \  \ \  __\ \ \____ \  
                  \/\_____\  \ \_\ \_\  \ \_\  \ \_____\  \ \_____\  \ \____-  \ \_\  \ \_\    \/\_____\ 
-                  \/_____/   \/_/\/_/   \/_/   \/_____/   \/_____/   \/____/   \/_/   \/_/     \/_____/ 
-                                                                                        
+                  \/_____/   \/_/\/_/   \/_/   \/_____/   \/_____/   \/____/   \/_/   \/_/     \/_____/                                                                               
         "
         );
 
@@ -33,11 +32,11 @@ namespace Shieldify
         {
             try
             {
-                string audioFilePath = @"C:\Users\Khutjo Mamabolo\Desktop\C#\Shieldify\Shieldify\Audio\bob.wav";
+                string audioFilePath = @"C:\Users\Khutjo Mamabolo\Desktop\Shieldify\Shieldify\Audio\bob.wav";
                 SoundPlayer player = new SoundPlayer(audioFilePath);
                 player.PlaySync();// Play the audio file
             }
-            catch (Exception ex)
+            catch (Exception ex) // Error should Audio be unable to play
             {
                 Console.WriteLine("Error playing audio: " + ex.Message);
             }
