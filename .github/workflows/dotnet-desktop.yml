@@ -53,9 +53,10 @@ jobs:
     runs-on: windows-latest
 
     env:
-      Solution_Name: Shieldify.csproj
-      Wap_Project_Directory: .
-      Wap_Project_Path: Shieldify.csproj
+      Solution_Name: Shieldify.sln
+      Test_Project_Path: your-test-project-path
+      Wap_Project_Directory: your-wap-project-directory-name
+      Wap_Project_Path: your-wap-project-path
 
     steps:
     - name: Checkout
@@ -71,19 +72,51 @@ jobs:
     - name: Setup MSBuild.exe
       uses: microsoft/setup-msbuild@v2
 
-    - name: Restore dependencies
-      run: dotnet restore $env:Solution_Name
+    - name: Execute unit tests
+      run: dotnet test
 
-    - name: Build the application
-      run: dotnet build $env:Solution_Name --configuration ${{ matrix.configuration }}
-
-    - name: Create the app package
-      run: msbuild $env:Wap_Project_Path /p:Configuration=$env:Configuration
+    - name: Restore the application
+      run: msbuild $env:Solution_Name /t:Restore /p:Configuration=$env:Configuration
       env:
         Configuration: ${{ matrix.configuration }}
+
+    # Debug step to check Wap_Project_Directory
+    - name: Debug Wap_Project_Directory
+      run: |
+        Write-Host "Wap_Project_Directory: $env:Wap_Project_Directory"
+
+    - name: Decode the pfx
+      run: |
+        # Decode the Base64-encoded PFX certificate
+        $pfx_cert_byte = [System.Convert]::FromBase64String("${{ secrets.Base64_Encoded_Pfx }}")
+
+        # Define the path for the .pfx file
+        $certificatePath = Join-Path -Path $env:Wap_Project_Directory -ChildPath "GitHubActionsWorkflow.pfx"
+
+        # Ensure the directory exists before writing the file
+        $dir = [System.IO.Path]::GetDirectoryName($certificatePath)
+        if (-not (Test-Path -Path $dir)) {
+            Write-Host "Directory does not exist. Creating directory: $dir"
+            New-Item -ItemType Directory -Force -Path $dir
+        }
+
+        # Write the .pfx file to disk
+        [IO.File]::WriteAllBytes($certificatePath, $pfx_cert_byte)
+        Write-Host "PFX certificate successfully written to: $certificatePath"
+
+    - name: Create the app package
+      run: msbuild $env:Wap_Project_Path /p:Configuration=$env:Configuration /p:UapAppxPackageBuildMode=$env:Appx_Package_Build_Mode /p:AppxBundle=$env:Appx_Bundle /p:PackageCertificateKeyFile=GitHubActionsWorkflow.pfx /p:PackageCertificatePassword=${{ secrets.Pfx_Key }}
+      env:
+        Appx_Bundle: Always
+        Appx_Bundle_Platforms: x86|x64
+        Appx_Package_Build_Mode: StoreUpload
+        Configuration: ${{ matrix.configuration }}
+
+    - name: Remove the pfx
+      run: Remove-Item -path $env:Wap_Project_Directory\GitHubActionsWorkflow.pfx
 
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: Build Output
-        path: ./bin/${{ matrix.configuration }}
+        name: MSIX Package
+        path: ${{ env.Wap_Project_Directory }}\AppPackages
