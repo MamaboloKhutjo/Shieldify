@@ -44,7 +44,7 @@ namespace Shieldify
             }
         }
 
-        static void TypingEffect(string text, int delay = 50) // giving Bob the typing effect
+        static void TypingEffect(string text, int delay = 30) // giving Bob the typing effect
         {
             foreach (char c in text)
             {
