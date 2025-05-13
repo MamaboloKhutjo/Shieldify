@@ -65,6 +65,8 @@ namespace Shieldify
             TypingEffect($"Bob: Hello {name}, how can I help you today?");
             Console.WriteLine();
 
+            string currentTopic = null;
+
             while (true)
             {
                 string userInput = Console.ReadLine()?.ToLower().Trim();
@@ -107,6 +109,16 @@ namespace Shieldify
                     break;
                 }
 
+                if ((userInput.Contains("more") || userInput.Contains("explain") || userInput.Contains("details") || userInput.Contains("don't understand") || userInput.Contains("not sure")) && currentTopic != null)
+                {
+                    string[] followUpResponses = responses[currentTopic];
+                    string extra = followUpResponses[random.Next(followUpResponses.Length)];
+                    Console.ForegroundColor = ConsoleColor.Cyan;
+                    TypingEffect($"Bob: Sure, let me give you more on that. {extra}");
+                    Console.ResetColor();
+                    continue;
+                }
+
                 bool found = false;
                 foreach (var key in responses.Keys)
                 {
@@ -120,6 +132,7 @@ namespace Shieldify
                         Console.ForegroundColor = ConsoleColor.Cyan;
                         TypingEffect($"Bob: {response}");
                         Console.ResetColor();
+                        currentTopic = key;
 
                         found = true;
                         break;
