@@ -9,9 +9,12 @@ namespace Shieldify
 {
     class Program
     {
-
+        /// Random number generator for selecting responses
         static Random random = new Random();
+        /// Dictionary to store user memory
         static Dictionary<string, string> memory = new Dictionary<string, string>();
+
+
 
         static void Main(string[] args)
         {
@@ -38,7 +41,7 @@ namespace Shieldify
         {
             try
             {
-                string audioFilePath = @"\\Shieldify\Audio\bob.wav";
+                string audioFilePath = @"Audio\bob.wav";
                 SoundPlayer player = new SoundPlayer(audioFilePath);
                 player.PlaySync();// Play the audio file
             }
@@ -76,6 +79,7 @@ namespace Shieldify
 
             string currentTopic = null;
 
+            // Start the conversation loop
             while (true)
             {
                 string userInput = Console.ReadLine()?.ToLower().Trim();
@@ -118,6 +122,18 @@ namespace Shieldify
                     continue;
                 }
 
+                // Check for emotional sentiment
+                foreach (var sentiment in sentimentResponses.Keys)
+                {
+                    if (userInput.Contains(sentiment))
+                    {
+                        Console.ForegroundColor = ConsoleColor.DarkYellow;
+                        TypingEffect($"Bob: I can sense that you're feeling {sentiment}. It's important to talk about these feelings. Let's address them together.");
+                        TypingEffect($"Bob: {sentimentResponses[sentiment]}");
+                        break;
+                    }
+                }
+                // searching for the keywords in the user input
                 bool found = false;
                 foreach (var key in responses.Keys)
                 {
@@ -127,6 +143,7 @@ namespace Shieldify
                         string[] keyResponses = responses[key];
                         string response = keyResponses[random.Next(keyResponses.Length)];
 
+                        Console.ForegroundColor = ConsoleColor.Green;
                         TypingEffect($"Bob: {response}");
 
                         // Personalize based on favorite topic
@@ -147,6 +164,7 @@ namespace Shieldify
             }
         }
 
+        // Dictionary to store user memory
         static Dictionary<string, string[]> responses = new Dictionary<string, string[]>
         {
             { "purpose", new[] {
@@ -250,8 +268,22 @@ namespace Shieldify
                 "Use authentication apps or SMS codes for extra protection."
             }}
         };
+
+        // Dictionary to store emotional responses
+        static Dictionary<string, string> sentimentResponses = new Dictionary<string, string>
+        {
+            { "worried", "I understand this can be overwhelming. You're doing great, and I'm here to guide you step by step." },
+            { "frustrated", "Don’t worry – cybersecurity can be tricky at times. Take a deep breath, and we’ll go through it together." },
+            { "confused", "It's okay to feel confused. I'm here to explain things as clearly as I can." },
+            { "curious", "I love your curiosity! Asking questions is the best way to learn." },
+            { "overwhelmed", "Take your time – learning cybersecurity is a journey, and you’re not alone." },
+            { "scared", "It's natural to be cautious. I’ll help you understand and protect yourself online." },
+            { "excited", "I’m excited too! Learning about cybersecurity can be fun and rewarding." },
+            { "happy", "I'm glad to hear that! Let's keep the positive vibes going while we learn." },
+            { "bored", "I get it – cybersecurity can be dry sometimes. Let’s spice it up with some interesting facts!" },
+            { "angry", "I understand that this can be frustrating. Let’s take a moment to breathe and refocus." },
+            { "sad", "I'm here for you. Learning can be tough, but it’s also a chance to grow." },
+            { "unsure", "Feeling unsure is part of learning. I'm right here to help you understand things better." }
+        };
     }
 }
-
-
-
