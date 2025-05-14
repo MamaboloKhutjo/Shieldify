@@ -11,6 +11,8 @@ namespace Shieldify
     {
 
         static Random random = new Random();
+        static Dictionary<string, string> memory = new Dictionary<string, string>();
+
         static void Main(string[] args)
         {
             DisplayLogo();  // Display the ASCII logo
@@ -61,8 +63,15 @@ namespace Shieldify
             Console.WriteLine();
             TypingEffect("Bob: Hello, I am Bob, your personal security assistant. What is your name?");
             string name = Console.ReadLine();
+            memory["name"] = name;
+
             Console.WriteLine();
-            TypingEffect($"Bob: Hello {name}, how can I help you today?");
+            TypingEffect($"Bob: Nice to meet you, {name}! What's your favorite cybersecurity topic? (e.g. phishing, encryption, etc.)");
+            string favTopic = Console.ReadLine();
+            memory["favorite_topic"] = favTopic;
+
+            TypingEffect($"Bob: Great! I’ll remember that you’re interested in {favTopic}. Let's continue!");
+
             Console.WriteLine();
 
             string currentTopic = null;
@@ -79,33 +88,25 @@ namespace Shieldify
 
                 if (userInput.Contains("hello") || userInput.Contains("hi"))
                 {
-                    Console.ForegroundColor = ConsoleColor.Green;
-                    TypingEffect("Bob: Hello! How can I help you today?");
-                    Console.ResetColor();
+                    TypingEffect($"Bob: Hello again, {memory["name"]}! How can I help you with {memory["favorite_topic"]} today?");
                     continue;
                 }
 
                 if (userInput.Contains("how are you"))
                 {
-                    Console.ForegroundColor = ConsoleColor.Yellow;
                     TypingEffect("Bob: I'm just a program, but I'm running smoothly! How can I assist you?");
-                    Console.ResetColor();
                     continue;
                 }
 
                 if (userInput.Contains("your name") || userInput.Contains("who are you"))
                 {
-                    Console.ForegroundColor = ConsoleColor.Green;
                     TypingEffect("Bob: My name is Bob, your personal security assistant.");
-                    Console.ResetColor();
                     continue;
                 }
 
                 if (userInput.Contains("bye") || userInput.Contains("quit") || userInput.Contains("exit"))
                 {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    TypingEffect("Bob: Its sad to see you leave, Stay safe online and Remember im always here to assist you");
-                    Console.ResetColor();
+                    TypingEffect($"Bob: It’s been a pleasure, {memory["name"]}. Stay safe and keep learning about {memory["favorite_topic"]}!");
                     break;
                 }
 
@@ -113,9 +114,7 @@ namespace Shieldify
                 {
                     string[] followUpResponses = responses[currentTopic];
                     string extra = followUpResponses[random.Next(followUpResponses.Length)];
-                    Console.ForegroundColor = ConsoleColor.Cyan;
-                    TypingEffect($"Bob: Sure, let me give you more on that. {extra}");
-                    Console.ResetColor();
+                    TypingEffect($"Bob: Sure, let me explain more. {extra}");
                     continue;
                 }
 
@@ -124,30 +123,31 @@ namespace Shieldify
                 {
                     if (userInput.Contains(key))
                     {
+                        currentTopic = key;
                         string[] keyResponses = responses[key];
-
-                        // Randomly select one response for certain keywords
                         string response = keyResponses[random.Next(keyResponses.Length)];
 
-                        Console.ForegroundColor = ConsoleColor.Cyan;
                         TypingEffect($"Bob: {response}");
-                        Console.ResetColor();
-                        currentTopic = key;
+
+                        // Personalize based on favorite topic
+                        if (key == memory["favorite_topic"].ToLower())
+                        {
+                            TypingEffect($"Bob: Since you're especially interested in {key}, I recommend keeping up with the latest news in that area.");
+                        }
 
                         found = true;
                         break;
                     }
                 }
 
-                    if (!found)
-                    {
-                        TypingEffect("Bob: I'm still learning. Please ask me about cybersecurity-related topics like passwords, phishing, or safe browsing.");
-                    }
-
+                if (!found)
+                {
+                    TypingEffect($"Bob: I'm still learning, {memory["name"]}. Please ask me about topics like phishing, encryption, or your favorite topic: {memory["favorite_topic"]}.");
                 }
             }
-        
-            static Dictionary<string, string[]> responses = new Dictionary<string, string[]>
+        }
+
+        static Dictionary<string, string[]> responses = new Dictionary<string, string[]>
         {
             { "purpose", new[] {
                 "I help you stay safe online by providing cybersecurity advice.",
@@ -204,15 +204,54 @@ namespace Shieldify
                 "Don't share passwords or personal data without verification.",
                 "Even trusted-looking emails can be fake – verify first."
             }},
+            { "vpn", new[] {
+                "A VPN encrypts your internet traffic and hides your IP address.",
+                "Use a VPN when using public Wi-Fi to protect your data.",
+                "Not all VPNs are safe – choose a trusted, no-log provider."
+            }},
+            { "zero trust", new[] {
+                "Zero Trust means never automatically trusting users or devices.",
+                "Always verify identity before granting access to resources.",
+                "It's a key strategy for reducing insider threats and breaches."
+            }},
+            { "data breach", new[] {
+                "A data breach occurs when unauthorized users access private data.",
+                "Use tools like HaveIBeenPwned to check if your email was exposed.",
+                "Change passwords immediately after a breach and enable 2FA."
+            }},
+            { "cyber hygiene", new[] {
+                "Cyber hygiene means following best practices to stay secure online.",
+                "Regularly update software, use strong passwords, and avoid sketchy sites.",
+                "Good habits help prevent malware, phishing, and identity theft."
+            }},
+            { "identity theft", new[] {
+                "Cybercriminals can steal your personal info and impersonate you.",
+                "Shred documents, avoid oversharing, and monitor your accounts.",
+                "If you suspect identity theft, report it and freeze your credit."
+            }},
+            { "cyberbullying", new[] {
+                "Cyberbullying is harassment done through digital means.",
+                "Block bullies, save evidence, and report to trusted adults or platforms.",
+                "Never respond aggressively – your safety and mental health come first."
+            }},
+            { "iot", new[] {
+                "IoT devices like smart TVs or cameras can be hacked.",
+                "Change default passwords and keep firmware updated.",
+                "Place them on a separate network if possible for better safety."
+            }},
+            { "dark web", new[] {
+                "The dark web is a hidden part of the internet used for anonymity.",
+                "It's often linked to illegal activity, but also used for privacy.",
+                "Never visit dark web sites without strong protection and legal knowledge."
+            }},
             { "2fa", new[] {
                 "Two-factor authentication adds a second layer of account security.",
                 "Even if someone has your password, 2FA keeps your account safe.",
                 "Use authentication apps or SMS codes for extra protection."
             }}
         };
-        }
-    } 
+    }
+}
 
 
 
-    
